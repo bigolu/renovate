@@ -11,7 +11,7 @@ My self-hosted Renovate instance and shared presets
 
 ### Environment Variables
 
-- `RENOVATE_TOKEN`: Access token
+- `RENOVATE_TOKEN` and `RENOVATE_GITHUB_COM_TOKEN`: Access token
 - [`RENOVATE_ADDITIONAL_CONFIG_FILE`][renovate-additional-config-file]: Use this to extend the global config
 
 ## Adding another repository
