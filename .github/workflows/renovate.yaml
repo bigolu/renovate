@@ -27,7 +27,7 @@ jobs:
         with:
           lix_conf: |
             show-trace = true
-      - uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
+      - uses: actions/create-github-app-token@v3
         id: app-installation-token
         with:
           client-id: ${{ vars.BIGOLU_RENOVATE_CLIENT_ID }}
