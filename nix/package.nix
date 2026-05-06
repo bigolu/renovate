@@ -43,9 +43,5 @@ writeTextFile {
     ${fileContents ../renovate.bash}
   '';
 
-  passthru.devshellModule =
-    { pkgs, ... }:
-    {
-      devshell.packages = [bash] ++ dependencies;
-    };
+  passthru.devshellModule = { devshell.packages = [bash] ++ dependencies; };
 }
