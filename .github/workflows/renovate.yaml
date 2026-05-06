@@ -2,7 +2,7 @@ name: Renovate
 on:
   workflow_dispatch:
   schedule:
-    # Run once a day.
+    # Run once a week.
     #
     # I've chosen a non-zero minute for the workflow to run to avoid running it at
     # the start of the hour. This is because GitHub sees high load at the start of
@@ -10,7 +10,7 @@ on:
     # dropped[1].
     #
     # [1]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
-    - cron: "43 0 * * *"
+    - cron: "43 0 * * 0"
 permissions:
   # `cache-nix-gc-roots-action` needs this permission to purge old caches
   actions: "write"
