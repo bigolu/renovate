@@ -19,9 +19,14 @@ let
 
   dependencies = with pkgs; [
     renovate
+    # Needed by Renovate
     git
+    # For the values "gomodTidy" and "gomodUpdateImportPaths" of the Renovate
+    # config setting "postUpdateOptions".
     go
+    # For a Renovate "postUpgradeTask"
     regenerate-gomod2nix-lock
+    # For the value "gomodUpdateImportPaths" of the Renovate config setting "postUpdateOptions".
     mod
   ];
 

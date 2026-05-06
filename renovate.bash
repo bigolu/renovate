@@ -1,12 +1,3 @@
-# Dependencies:
-# 	- renovate
-#   - git is needed by Renovate
-#   - go is needed for the values "gomodTidy" and "gomodUpdateImportPaths" of the
-#     Renovate config setting "postUpdateOptions".
-#   - regenerate-gomod2nix-lock is needed for a Renovate "postUpgradeTask"
-#   - mod is needed for the value "gomodUpdateImportPaths" of the
-#     Renovate config setting "postUpdateOptions".
-
 set -o errexit
 set -o nounset
 set -o pipefail
