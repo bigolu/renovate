@@ -14,6 +14,9 @@ on:
 permissions:
   # `cache-nix-gc-roots-action` needs this permission to purge old caches
   actions: "write"
+defaults:
+  run:
+    shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
 jobs:
   renovate:
     strategy:
@@ -35,7 +38,6 @@ jobs:
             show-trace = true
       - uses: bigolu/cache-nix-gc-roots-action/restore@main
       - id: prepare-arguments
-        shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
         env:
             OWNER: ${{ matrix.owner }}
             REPOS: ${{ matrix.repos-json }}
@@ -66,7 +68,6 @@ jobs:
         env:
           RENOVATE_TOKEN: "${{ steps.app-installation-token.outputs.token }}"
           RENOVATE_REPOSITORIES: ${{ steps.prepare-arguments.outputs.repos-with-owner }}
-        shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
         run: bigolu-renovate
       - if: always()
         uses: bigolu/cache-nix-gc-roots-action/save@main
