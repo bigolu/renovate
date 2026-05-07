@@ -16,11 +16,10 @@ My self-hosted Renovate instance and shared presets
 
 ## Adding another repository
 
-1. If you're a new user:
-   1. Install the [bigolu-renovate][bigolu-renovate] app.
-   2. Add yourself to the [workflow matrix](.github/workflows/renovate.yaml).
+1. If you're a new user, install the [bigolu-renovate][bigolu-renovate] app.
 2. Go to your [bigolu-renovate][bigolu-renovate] app installation settings and ensure the app has permission to access the new repository.
-3. Add the repository to the [workflow matrix](.github/workflows/renovate.yaml).
+3. Add your repository, and username if you're a new user, to the [workflow matrix][workflow-matrix].
 
 [renovate-additional-config-file]: https://docs.renovatebot.com/config-overview/#additional-file-config
 [bigolu-renovate]: https://github.com/apps/bigolu-renovate
+[workflow-matrix]: .github/workflows/renovate.yaml

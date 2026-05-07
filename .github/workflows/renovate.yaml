@@ -21,14 +21,15 @@ jobs:
   renovate:
     strategy:
       matrix:
-        owner:
-          - bigolu
-        include:
-          - owner: bigolu
-            repos-json: >
-              [
+        # JSON format
+        repo-info:
+          - >-
+            {
+              "owner": "bigolu",
+              "repos": [
                 "system-configurations"
               ]
+            }
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -37,26 +38,21 @@ jobs:
           lix_conf: |
             show-trace = true
       - uses: bigolu/cache-nix-gc-roots-action/restore@main
+      # Outputs:
+      #   repos: "repo1,repo2"
+      #   repos-with-owner: "owner/repo1,owner/repo2"
       - id: prepare-arguments
         env:
-            OWNER: ${{ matrix.owner }}
-            REPOS: ${{ matrix.repos-json }}
+            REPO_INFO: ${{ matrix.repo-info }}
         run: |
-          # Sample output: repos=repo1,repo2
           jq \
             --raw-output \
             --null-input \
-            --argjson repos "$REPOS" \
-            '$repos | "repos=" + join(",")' \
-            >>"$GITHUB_OUTPUT"
-          # Sample output: repos-with-owner=owner/repo1,owner/repo2
-          jq \
-            --raw-output \
-            --null-input \
-            --arg owner "$OWNER" \
-            --argjson repos "$REPOS" \
-            '$repos | map($owner + "/" + .) | "repos-with-owner=" + join(",")' \
-            >>"$GITHUB_OUTPUT"
+            --argjson repoInfo "$REPO_INFO" \
+            '
+              "repos=\($repoInfo.repos | join(","))\n" 
+                + "repos-with-owner=\($repoInfo.repos | map($repoInfo.owner + "/" + .) | join(","))"
+            '
       - uses: actions/create-github-app-token@v3
         id: app-installation-token
         with:
