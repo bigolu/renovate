@@ -18,11 +18,14 @@ jobs:
   renovate:
     strategy:
       matrix:
-        app-installation-owner:
+        owner:
           - bigolu
         include:
-          - app-installation-owner: bigolu
-            repos: system-configurations
+          - owner: bigolu
+            repos-json: >
+              [
+                "system-configurations"
+              ]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -31,24 +34,38 @@ jobs:
           lix_conf: |
             show-trace = true
       - uses: bigolu/cache-nix-gc-roots-action/restore@main
+      - id: prepare-arguments
+        shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
+        env:
+            OWNER: ${{ matrix.owner }}
+            REPOS: ${{ matrix.repos-json }}
+        run: |
+          # Sample output: repos=repo1,repo2
+          jq \
+            --raw-output \
+            --null-input \
+            --argjson repos "$REPOS" \
+            '$repos | "repos=" + join(",")' \
+            >>"$GITHUB_OUTPUT"
+          # Sample output: repos-with-owner=owner/repo1,owner/repo2
+          jq \
+            --raw-output \
+            --null-input \
+            --arg owner "$OWNER" \
+            --argjson repos "$REPOS" \
+            '$repos | map($owner + "/" + .) | "repos-with-owner=" + join(",")' \
+            >>"$GITHUB_OUTPUT"
       - uses: actions/create-github-app-token@v3
         id: app-installation-token
         with:
           client-id: ${{ vars.BIGOLU_RENOVATE_CLIENT_ID }}
           private-key: ${{ secrets.BIGOLU_RENOVATE_PRIVATE_KEY }}
-          owner: ${{ matrix.app-installation-owner }}
-          repositories: ${{ matrix.repos }}
-      # Prepend each repo with its owner.
-      # For example, "repo1,repo2" would become "owner/repo1,owner/repo2".
-      - id: add-owner-to-repos
-        shell: bash
-        run: |
-          repos_with_owner="$(echo ${{ matrix.app-installation-owner }}/{${{ matrix.repos }}})"
-          echo "repos-with-owner=${repos_with_owner// /,}" >>"$GITHUB_OUTPUT"
+          owner: ${{ matrix.owner }}
+          repositories: ${{ steps.prepare-arguments.outputs.repos }}
       - name: Run renovate
         env:
           RENOVATE_TOKEN: "${{ steps.app-installation-token.outputs.token }}"
-          RENOVATE_REPOSITORIES: ${{ steps.add-owner-to-repos.outputs.repos-with-owner }}
+          RENOVATE_REPOSITORIES: ${{ steps.prepare-arguments.outputs.repos-with-owner }}
         shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
         run: bigolu-renovate
       - if: always()

@@ -17,6 +17,7 @@ perSystem.devshell.mkShell (
     };
 
     devshell.packages = [perSystem.self.default] ++ (with pkgs; [
+      jq
       # For the `run` steps in CI workflows
       bash
     ]);
