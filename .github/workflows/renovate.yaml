@@ -39,6 +39,7 @@ jobs:
             show-trace = true
       - uses: bigolu/cache-nix-gc-roots-action/restore@main
       # Outputs:
+      #   owner: "owner"
       #   repos: "repo1,repo2"
       #   repos-with-owner: "owner/repo1,owner/repo2"
       - id: prepare-arguments
@@ -50,15 +51,17 @@ jobs:
             --null-input \
             --argjson repoInfo "$REPO_INFO" \
             '
-              "repos=\($repoInfo.repos | join(","))\n" 
+              "owner=\($repoInfo.owner)\n"
+                + "repos=\($repoInfo.repos | join(","))\n" 
                 + "repos-with-owner=\($repoInfo.repos | map($repoInfo.owner + "/" + .) | join(","))"
-            '
+            ' \
+            >>"$GITHUB_OUTPUT"
       - uses: actions/create-github-app-token@v3
         id: app-installation-token
         with:
           client-id: ${{ vars.BIGOLU_RENOVATE_CLIENT_ID }}
           private-key: ${{ secrets.BIGOLU_RENOVATE_PRIVATE_KEY }}
-          owner: ${{ matrix.owner }}
+          owner: ${{ steps.prepare-arguments.outputs.owner }}
           repositories: ${{ steps.prepare-arguments.outputs.repos }}
       - name: Run renovate
         env:
