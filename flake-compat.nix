@@ -29,7 +29,7 @@ flake // {
   outputsForCurrentSystem = let
     inherit (builtins) mapAttrs isAttrs hasAttr currentSystem;
     # TODO: (On lix 2.95.1) If you call `mapAttrs` with an attrset that has a `__functor` attribute, it tries to call it.
-    # It doesn't happen in the REPL, but it does happen if you run `nix build --file flake.compat outputsForCurrentSystem.devShells.dev`.
+    # It doesn't happen in the REPL, but it does happen if you run `nix build --file flake-compat.nix outputsForCurrentSystem.devShells.dev`.
     flakeOutputsWithoutFunctor = builtins.removeAttrs flake.outputs ["__functor"];
   in
   mapAttrs (name: value: if (isAttrs value && hasAttr currentSystem value) then value.${currentSystem} else value) flakeOutputsWithoutFunctor;
