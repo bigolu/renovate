@@ -21,15 +21,10 @@ jobs:
   renovate:
     strategy:
       matrix:
-        # JSON format
+        # repos should be separated by a comma and prefixed with `{0}`
         repo-info:
-          - >-
-            {
-              "owner": "bigolu",
-              "repos": [
-                "system-configurations"
-              ]
-            }
+          - owner: bigolu
+            repos: "{0}system-configurations"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -38,35 +33,17 @@ jobs:
           lix_conf: |
             show-trace = true
       - uses: bigolu/cache-nix-gc-roots-action/restore@main
-      # Outputs:
-      #   owner: "owner"
-      #   repos: "repo1,repo2"
-      #   repos-with-owner: "owner/repo1,owner/repo2"
-      - id: prepare-arguments
-        env:
-            REPO_INFO: ${{ matrix.repo-info }}
-        run: |
-          jq \
-            --raw-output \
-            --null-input \
-            --argjson repoInfo "$REPO_INFO" \
-            '
-              "owner=\($repoInfo.owner)\n"
-                + "repos=\($repoInfo.repos | join(","))\n" 
-                + "repos-with-owner=\($repoInfo.repos | map($repoInfo.owner + "/" + .) | join(","))"
-            ' \
-            >>"$GITHUB_OUTPUT"
       - uses: actions/create-github-app-token@v3
         id: app-installation-token
         with:
           client-id: ${{ vars.BIGOLU_RENOVATE_CLIENT_ID }}
           private-key: ${{ secrets.BIGOLU_RENOVATE_PRIVATE_KEY }}
-          owner: ${{ steps.prepare-arguments.outputs.owner }}
-          repositories: ${{ steps.prepare-arguments.outputs.repos }}
+          owner: ${{ matrix.repo-info.owner }}
+          repositories: ${{ format(matrix.repo-info.repos, '') }}
       - name: Run renovate
         env:
           RENOVATE_TOKEN: "${{ steps.app-installation-token.outputs.token }}"
-          RENOVATE_REPOSITORIES: ${{ steps.prepare-arguments.outputs.repos-with-owner }}
+          RENOVATE_REPOSITORIES: ${{ format(matrix.repo-info.repos, format('{0}/', matrix.repo-info.owner)) }}
         run: bigolu-renovate
       - if: always()
         uses: bigolu/cache-nix-gc-roots-action/save@main
