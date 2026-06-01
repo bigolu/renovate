@@ -47,7 +47,7 @@ jobs:
           RENOVATE_REPOSITORIES: >-
             ${{
               format(
-                format('{0}/,{{0}}', matrix.data.owner),
+                format('{0}/{{0}}', matrix.data.owner),
                 join(matrix.data.repos, format(',{0}/', matrix.data.owner))
               )
             }}
