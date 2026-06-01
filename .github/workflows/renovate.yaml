@@ -21,10 +21,10 @@ jobs:
   renovate:
     strategy:
       matrix:
-        # repos should be separated by a comma and prefixed with `{0}`
-        repo-info:
+        data:
           - owner: bigolu
-            repos: "{0}system-configurations"
+            repos: 
+              - system-configurations
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -38,12 +38,19 @@ jobs:
         with:
           client-id: ${{ vars.BIGOLU_RENOVATE_CLIENT_ID }}
           private-key: ${{ secrets.BIGOLU_RENOVATE_PRIVATE_KEY }}
-          owner: ${{ matrix.repo-info.owner }}
-          repositories: ${{ format(matrix.repo-info.repos, '') }}
+          owner: ${{ matrix.data.owner }}
+          repositories: ${{ join(matrix.data.repos) }}
       - name: Run renovate
         env:
           RENOVATE_TOKEN: "${{ steps.app-installation-token.outputs.token }}"
-          RENOVATE_REPOSITORIES: ${{ format(matrix.repo-info.repos, format('{0}/', matrix.repo-info.owner)) }}
+          # Example: <owner>/<repo1>,<owner>/<repo2>,<owner>/<repo3>
+          RENOVATE_REPOSITORIES: >-
+            ${{
+              format(
+                format('{0}/,{{0}}', matrix.data.owner),
+                join(matrix.data.repos, format(',{0}/', matrix.data.owner))
+              )
+            }}
         run: bigolu-renovate
       - if: always()
         uses: bigolu/cache-nix-gc-roots-action/save@main
