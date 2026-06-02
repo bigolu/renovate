@@ -39,6 +39,7 @@ writeTextFile {
   name = "${pname}";
   executable = true;
   destination = "/bin/${pname}";
+  meta.mainProgram = pname;
 
   text = ''
     #!${getExe bash}
