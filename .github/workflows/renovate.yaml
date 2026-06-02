@@ -14,9 +14,6 @@ on:
 permissions:
   # `cache-nix-gc-roots-action` needs this permission to purge old caches
   actions: "write"
-defaults:
-  run:
-    shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
 jobs:
   renovate:
     strategy:
@@ -51,6 +48,7 @@ jobs:
                 join(matrix.data.repos, format(',{0}/', matrix.data.owner))
               )
             }}
+        shell: nix run --file flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
         run: bigolu-renovate
       - if: always()
         uses: bigolu/cache-nix-gc-roots-action/save@main
